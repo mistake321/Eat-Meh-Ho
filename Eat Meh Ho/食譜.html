@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食譜分享</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+    background-color: rgba(247, 245, 244, 0.8);
+    height: 80px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5vw;
+}
+header ul {
+    position:absolute;
+    right:5vw;
+    top:0;
+    line-height:80px;
+}
+header li {
+    display:inline;
+    margin-right:4vw;    
+}
+header a {
+    color:black;
+    text-decoration: none;
+}
+header a:hover {
+    text-decoration: underline;
+}
+h1 {
+    color: white;
+    position: absolute;
+    left: 120px;
+    top: 0;
+    line-height: 80px; 
+    background-image: url(F.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain; 
+    width: 200px;
+    height: 80px; 
+    text-indent: -999px; 
+}
+
+#title {
+    color: black;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    position: relative;
+    padding: 10px 20px;
+}
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: white;
+    z-index: 1000;
+}
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 60px;
+            border-radius: 10px;
+            
+        }
+        .recipe {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .recipe:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .recipe img {
+            width: 140px;
+            height: 140px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .recipe-info {
+            flex: 1;
+        }
+        .recipe-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .recipe-author {
+            font-size: 14px;
+            color: gray;
+        }
+        .recipe-description {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #555;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            width: 150px;
+            text-align: left;
+            padding: 5px 0;
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu li {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .dropdown-menu li:hover {
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+        .post {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .post:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .post img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .post-info {
+            flex: 1;
+        }
+        .post-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .post-author {
+            font-size: 14px;
+            color: gray;
+        }
+        .post-content {
+            font-size: 14px;
+            margin-top: 5px;
+            color: #555;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .recipe-detail img {
+            width: 8cm; /* 設定寬度為8cm */
+            height: 8cm; /* 設定高度為8cm */
+            border-radius: 8px;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+HK&display=swap');
+        .language-selector {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.language-selector label {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.language-selector select {
+    padding: 5px;
+    font-size: 14px;
+}
+
+body {
+    font-family: 'Noto Sans HK', sans-serif;
+    background: url('d.png') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 100px 20px 40px;
+    color: #3e3e3e;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    border-left: 6px solid #c89f7b;
+    padding-left: 12px;
+    color: #403b36;
+}
+
+.post, .recipe {
+    background: #fffaf4;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e0d7cf;
+}
+
+.post:hover, .recipe:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.post img, .recipe img {
+    border-radius: 10px;
+    border: 1px solid #ddd2c3;
+}
+
+.back-button, .delete-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    border: none;
+    margin-right: 10px;
+    transition: background 0.2s ease;
+}
+
+.back-button {
+    background-color: #7cba7c;
+    color: white;
+}
+
+.back-button:hover {
+    background-color: #69a569;
+}
+
+.delete-button {
+    background-color: #cc6b5a;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #b85a4a;
+}
+
+a {
+    color: #c89f7b;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="title">食咩好</h1>
+        <nav>
+            <ul>
+                <li><a href="home.html" id="home">首頁</a></li>
+                <li><a href="ingredients.html" id="ingredients">食材</a></li>
+                <li><a href="食譜.html" id="recipe" >食譜</a></li>
+                <li class="dropdown">
+                    <a href="#" id="tools">工具 ▼</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="bmi.html">BMI</a></li>
+                        <li><a href="tdee.html">TDEE</a></li>
+                        <li><a href="timetable.html">TIMETABLE</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="language-selector">
+                        <label for="language">🌐</label>
+                        <select id="language"onchange="changeLanguage()">
+                            <option value="zh">中文</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h2 id="title1">精選食譜</h2>
+        <div id="recipes"></div>
+        <a href="upload.html" id="label">發佈新食譜</a>
+    </div>
+    <script>
+        const translations = {
+            zh: {
+                home: "首頁",
+                ingredients: "食材",
+                recipe: "食譜",
+                tools: "工具",
+                title1: "精選食譜",
+                label: "發佈新食譜",
+                },
+            en: {
+                home: "Home",
+                ingredients: "Ingredients",
+                recipe: "Recipes",
+                tools: "Tools",
+                title1: "Selected Recipes",
+                label: "Publish new recipe",
+                }
+            };
+        function changeLanguage() {
+            const lang = document.getElementById("language").value;
+            const t = translations[lang];
+            document.getElementById("home").innerText = t.home;
+            document.getElementById("ingredients").innerText = t.ingredients;
+            document.getElementById("recipe").innerText = t.recipe;
+            document.getElementById("tools").innerText = t.tools;
+            document.getElementById("title1").innerText = t.title1;
+            document.getElementById("label").innerText = t.label;    
+        };
+        function loadRecipes() {
+            const recipesContainer = document.getElementById('recipes');
+            recipesContainer.innerHTML = '';
+
+            const recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+            recipes.forEach((recipe, index) => {
+                const recipeDiv = document.createElement('div');
+                recipeDiv.className = 'post';
+                recipeDiv.onclick = () => {
+                    const recipeDetail = `
+                        <div class="recipe-detail">
+                            <h1>${recipe.title}</h1>
+                            <img src="${recipe.image}" alt="${recipe.title}">
+                            <p>${recipe.content}</p>
+                            <button class="back-button" onclick="goBack(event)">返回</button>
+                            <button class="delete-button" onclick="deleteRecipe(event, ${index})">刪除</button>
+                        </div>
+                    `;
+                    recipesContainer.innerHTML = recipeDetail; // 顯示詳細內容
+                };
+
+                recipeDiv.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.title}">
+                    <div class="post-info">
+                        <div class="post-title">${recipe.title}</div>
+                        <div class="post-author">by ${recipe.username}</div>
+                    </div>
+                `;
+                recipesContainer.appendChild(recipeDiv);
+            });
+        }
+
+        function goBack(event) {
+            event.stopPropagation(); // 防止事件冒泡
+            loadRecipes(); // 返回食譜列表
+        }
+
+        function deleteRecipe(event, index) {
+            event.stopPropagation(); // 防止事件冒泡
+            const recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+            recipes.splice(index, 1); // 刪除食譜
+            localStorage.setItem('recipes', JSON.stringify(recipes)); // 更新本地存儲
+            loadRecipes(); // 重新加載食譜列表
+        }
+
+        window.onload = loadRecipes;
+    </script>
+</body>
+</html>

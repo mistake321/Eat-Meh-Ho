@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食咩好</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .modal {
+            display: none; /* 隱藏模態 */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        #skip-button {
+            margin-top: 20px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        #skip-button:hover {
+            background-color: #0056b3; /* 懸停顏色 */
+        }
+        .membership-tag {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .membership-tag button {
+            margin: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .membership-tag button:hover {
+            background-color: #218838;
+        }
+        .payment-modal-content {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+			background-color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .payment-modal-content button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: black;
+            transition: background-color 0.3s;
+        }
+        .payment-modal-content button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="title">食咩好</h1>
+        <nav>
+            <ul>
+                <li><a href="home.html" id="home">首頁</a></li>
+                <li><a href="ingredients.html" id="ingredients">食材</a></li>
+                <li><a href="食譜.html" id="recipes">食譜</a></li>
+                <li class="dropdown">
+                    <a href="#" id="tools">工具 ▼</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="bmi.html" id="tool1">BMI</a></li>
+                        <li><a href="tdee.html" id="tool2">TDEE</a></li>
+                        <li><a href="timetable.html" id="tool3">TIMETABLE</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="language-selector">
+                        <label for="language">🌐</label>
+                        <select id="language">
+                            <option value="zh">中文</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="news">
+            <h2 id="headline">自由選擇食材 美味餸菜佳餚</h2>
+            <p id="subtext">誰人都可健康 只要找對食譜</p>
+        </section>
+
+        <section class="slogan">
+            <blockquote id="slogan">"提供優質食譜 協助不同人士"</blockquote>
+        </section>
+
+        <section class="food">
+            <img src="images/s2.jpg" class="main-image">
+            <div class="food-selection">
+                <a href="ingredients.html?filter-options=番茄&auto-filter=true"><img src="images/tomato.png" class="food-item" data-name="番茄" onclick="selectIngredient('番茄')"></a>
+                <a href="ingredients.html?filter-options=菜&auto-filter=true"><img src="images/lettuce.png" class="food-item" data-name="菜" onclick="selectIngredient('菜')"></a>
+                <a href="ingredients.html?filter-options=雞&auto-filter=true"><img src="images/chicken.png" class="food-item" data-name="雞" onclick="selectIngredient('雞')"></a>
+                <a href="ingredients.html?filter-options=魚&auto-filter=true"><img src="images/fish.png" class="food-item" data-name="魚" onclick="selectIngredient('魚')"></a>
+                <a href="ingredients.html?filter-options=菇&auto-filter=true"><img src="images/mushroom.png" class="food-item" data-name="菇" onclick="selectIngredient('菇')"></a>
+                <a href="ingredients.html?filter-options=牛&auto-filter=true"><img src="images/beef.png" class="food-item" data-name="牛" onclick="selectIngredient('牛')"></a>
+                <a href="ingredients.html?filter-options=蝦&auto-filter=true"><img src="images/Shrimp.png" class="food-item" data-name="蝦" onclick="selectIngredient('蝦')"></a>
+                <a href="ingredients.html?filter-options=豬&auto-filter=true"><img src="images/pig.png" class="food-item" data-name="豬" onclick="selectIngredient('豬')"></a>
+                <a href="ingredients.html?filter-options=蛋&auto-filter=true"><img src="images/egg.png" class="food-item" data-name="蛋" onclick="selectIngredient('蛋')"></a>
+            </div>
+        </section>
+
+        <script>
+            function selectIngredient(ingredient) {
+                window.location.href = `filter.html?ingredient=${encodeURIComponent(ingredient)}`;
+            }
+        </script>
+
+        <section class="product">
+            <div>
+                <a href="recipe1.html"><img src="images/mapo-tofu-6.jpg"></a>
+                <h3 id="product1-title">麻婆豆腐</h3>
+                <p id="product1-desc">四川名菜，麻婆豆腐</p>
+            </div>
+            <div>
+                <a href="recipe2.html"><img src="images/egg.jpg"></a>
+                <h3 id="product2-title">番茄炒蛋</h3>
+                <p id="product2-desc">家常料理，作法簡單</p>
+            </div>
+            <div>
+                <a href="recipe3.html"><img src="images/i.jpg"></a>
+                <h3 id="product3-title">凱撒沙律</h3>
+                <p id="product3-desc">簡單飽足，清新美味</p>
+            </div>
+        </section>
+
+        <section class="newsletter">
+            <p id="subscribe">歡迎提供您的意見或建議！</p>
+            <iframe width="100%" height="250px" src="https://forms.office.com/r/Xuah1Qh5gD?embed=true" frameborder="0" marginwidth="0" marginheight="0" style="border: none; max-width:100%; max-height:100vh" allowfullscreen webkitallowfullscreen mozallowfullscreen msallowfullscreen></iframe>
+        </section>
+    </main>
+
+    <!-- 会员功能标签 -->
+    <div class="membership-tag">
+        <button onclick="purchaseMembership()">購買會員</button>
+        <button onclick="cancelMembership()">取消訂閱會員</button>
+    </div>
+
+    <!-- 弹出式广告 -->
+    <div class="modal" id="adModal">
+        <div class="modal-content">
+            <video width="650" height="400" autoplay playsinline muted loop>
+                <source src="advertisement.mp4" type="video/mp4">
+            </video>
+            <p>查看我們的最新優惠和食譜！</p>
+            <button id="skip-button" style="display: none;">跳過</button>
+        </div>
+    </div>
+
+    <div class="modal" id="paymentModal">
+        <div class="payment-modal-content">
+            <h3>選擇支付方式</h3>
+            <p>請選擇您的支付方式：</p>
+            <button onclick="confirmPayment('信用卡')">信用卡</button>
+            <button onclick="confirmPayment('PayPal')">PayPal</button>
+			<button onclick="confirmPayment('Apple Pay')">Apple Pay</button>
+            <button onclick="confirmPayment('Google Pay')">Google Pay</button><br>
+            <button onclick="closePaymentModal()">取消</button>
+			<p>
+                <a href="#" id="terms-link">點擊查看條款及細則</a>
+            </p>
+        </div>
+    </div>
+	
+	<div class="modal" id="termsModal">
+        <div class="modal-content">
+            <h3>購買會員條款及細則</h3>
+            <p>1. 會員資格僅限於在本網站登記的用戶。</p>
+            <p>2. 會員費用不予退還，除非在法律要求的情況下。</p>
+            <p>3. 會員享有的優惠和服務可能會隨時變更，恕不另行通知。</p>
+            <p>4. 會員在使用本網站的服務時，必須遵循所有適用的法律法規。</p>
+            <button onclick="closeTermsModal()">關閉</button>
+        </div>
+    </div>
+
+    <script>
+        // 顯示彈出式廣告
+        document.addEventListener("DOMContentLoaded", function() {
+            const modal = document.getElementById("adModal");
+            const skipButton = document.getElementById("skip-button");
+
+            if (!isUserMember()) {
+                modal.style.display = "flex"; // 顯示模態
+
+                // 5秒後顯示跳過按鈕
+                setTimeout(() => {
+                    skipButton.style.display = "block";
+                }, 5000);
+
+                // 點擊跳過按鈕隱藏廣告
+                skipButton.addEventListener("click", () => {
+                    modal.style.display = "none";
+                });
+            }
+        });
+
+        function isUserMember() {
+            return localStorage.getItem("isMember") === "true"; // 檢查會員狀態
+        }
+
+        function purchaseMembership() {
+            document.getElementById("paymentModal").style.display = "flex"; // 顯示支付模態
+        }
+
+        function closePaymentModal() {
+            document.getElementById("paymentModal").style.display = "none"; // 隱藏支付模態
+        }
+
+        function confirmPayment(method) {
+            // 模擬支付成功
+            alert(`使用 ${method} 支付成功！`);
+            localStorage.setItem("isMember", "true"); // 設置會員狀態
+            document.getElementById("adModal").style.display = "none"; // 隱藏廣告
+            closePaymentModal(); // 隱藏支付模態
+            location.reload(); // 刷新頁面
+        }
+
+        function cancelMembership() {
+            localStorage.removeItem("isMember"); // 清除會員狀態
+            alert("已取消訂閱會員，廣告將再次顯示。");
+            const modal = document.getElementById("adModal");
+            const skipButton = document.getElementById("skip-button");
+            modal.style.display = "flex"; // 顯示廣告
+            skipButton.style.display = "none"; // 確保跳過按鈕隱藏
+            setTimeout(() => {
+                skipButton.style.display = "block"; // 5秒後顯示跳過按鈕
+            }, 5000);
+			 // 點擊跳過按鈕隱藏廣告
+                skipButton.addEventListener("click", () => {
+                    modal.style.display = "none";
+             });
+        }
+		document.getElementById("terms-link").addEventListener("click", function(event) {
+            event.preventDefault(); // 防止鏈接的默認行為
+            document.getElementById("termsModal").style.display = "flex"; // 顯示條款模態
+        });
+
+        function closeTermsModal() {
+            document.getElementById("termsModal").style.display = "none"; // 隱藏條款模態
+        }
+
+        const translations = {
+            zh: {
+                title: "食咩好",
+                home: "首頁",
+                ingredients: "食材",
+                recipes: "食譜",
+                tools: "工具",
+                tool1: "BMI",
+                tool2: "TDEE",
+                tool3: "TIMETABLE",
+                headline: "自由選擇食材 美味餸菜佳餚",
+                subtext: "誰人都可健康 只要找對食譜",
+                recipeLink: "今期食譜",
+                slogan: '"提供優質食譜 協助不同人士"',
+                product1Title: "麻婆豆腐",
+                product1Desc: "四川名菜，麻婆豆腐",
+                product2Title: "番茄炒蛋",
+                product2Desc: "家常料理，作法簡單",
+                product3Title: "凱撒沙律",
+                product3Desc: "簡單飽足，清新美味",
+                subscribe: '歡迎提供您的意見或建議！',
+                emailPlaceholder: "請輸入您的意見"
+            },
+            en: {
+                title: "What's for Dinner?",
+                home: "Home",
+                ingredients: "Ingredients",
+                recipes: "Recipes",
+                tools: "Tools",
+                tool1: "BMI",
+                tool2: "TDEE",
+                tool3: "TIMETABLE",
+                headline: "Choose Your Ingredients, Cook a Delicious Meal",
+                subtext: "Anyone can be healthy, just find the right recipe",
+                recipeLink: "This Week's Recipes",
+                slogan: '"Providing quality recipes to help everyone"',
+                product1Title: "Mapo Tofu",
+                product1Desc: "A famous Sichuan dish, Mapo Tofu",
+                product2Title: "Tomato Scrambled Eggs",
+                product2Desc: "A simple homemade dish",
+                product3Title: "Caesar Salad",
+                product3Desc: "Light, fresh, and filling",
+                subscribe: 'We welcome your feedback or suggestions!',
+                emailPlaceholder: "Enter your feedback"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const elements = {
+                title: "title",
+                home: "home",
+                ingredients: "ingredients",
+                recipes: "recipes",
+                tools: "tools",
+                tool1: "tool1",
+                tool2: "tool2",
+                tool3: "tool3",
+                headline: "headline",
+                subtext: "subtext",
+                recipeLink: "recipe-link",
+                slogan: "slogan",
+                product1Title: "product1-title",
+                product1Desc: "product1-desc",
+                product2Title: "product2-title",
+                product2Desc: "product2-desc",
+                product3Title: "product3-title",
+                product3Desc: "product3-desc",
+                subscribe: "subscribe",
+                submit: "submit",
+            };
+
+            document.title = translations[lang].title;
+            
+            for (const key in elements) {
+                const element = document.getElementById(elements[key]);
+                if (element) {
+                    element.textContent = translations[lang][key];
+                }
+            }
+
+            document.getElementById("email").placeholder = translations[lang].emailPlaceholder;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedLang = localStorage.getItem("language") || "zh"; 
+            document.getElementById("language").value = savedLang;
+            changeLanguage(savedLang);
+        });
+
+        document.getElementById("language").addEventListener("change", function() {
+            const selectedLang = this.value;
+            localStorage.setItem("language", selectedLang); 
+            changeLanguage(selectedLang);
+        });
+    </script>
+</body>
+</html>
