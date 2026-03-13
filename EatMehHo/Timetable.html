@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable</title>
+    <style>
+        /* Existing styles remain unchanged */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            background-image: url('g.jpeg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        nav {
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+			background: white; /* Ensure nav has a background */
+        }
+
+        body {
+            padding-top: 60px; /* Adjust based on nav height */
+        }
+
+        h2 {
+            text-align: center;
+            color: white;
+        }
+
+        .month-selection {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 10px;
+            margin: 0 10px;
+            border: 1px solid #fefefe;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .calendar {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #ddd;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-selection label {
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .month {
+            text-align: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 24px;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-top: 1px solid #ddd;
+			justify-content: flex-end;
+        }
+
+        .day {
+            border: 1px solid #ddd;
+            padding: 5px;
+            height: 100px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+		.day:hover {
+            background-color: #f0f0f0;
+        }
+		
+        .day.no-activity {
+            background-color: green; /* Color for days with no activities */
+        }
+
+        .activity-tag {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .activity-tag.selected {
+            background-color: #45a049;
+        }
+
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 30px;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 10px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			animation: slide-in 0.5s; /* Add animation */
+		}
+		.time-period {
+			margin-bottom: 10px; /* Space between periods */
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			padding: 10px;
+			background-color: #f9f9f9;
+		}
+		.time-period h3 {
+			margin: 0;
+			color: #4CAF50; /* Header color */
+		}
+
+		.time-slot {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 5px 0;
+			border-bottom: 1px solid #eee;
+		}
+
+		.time-slot:last-child {
+			border-bottom: none; /* Remove last border */
+		}
+		
+		.activity-tag {
+			background-color: #4CAF50;
+			color: white;
+			border-radius: 5px;
+			padding: 3px 8px;
+			margin-left: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s;
+		}	
+
+		.activity-tag:hover {
+			background-color: #45a049; /* Darken on hover */
+		}
+
+		@keyframes slide-in {
+			from {
+				opacity: 0;
+				transform: translateY(-20px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+        .help-button {
+            position: fixed;
+            top: 20px;
+            right: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .help-button:hover {
+            background-color: #0056b3;
+			transform: scale(1.05);
+        }
+		@media (max-width: 600px) {
+			.help-button {
+				width: 40px; /* Smaller width for mobile */
+				height: 40px; /* Smaller height for mobile */
+				font-size: 20px; /* Smaller font size for mobile */
+			}
+		}
+
+		@media (max-width: 400px) {
+			.help-button {
+				width: 35px; /* Even smaller width for very small screens */
+				height: 35px; /* Even smaller height for very small screens */
+				font-size: 18px; /* Smaller font size for very small screens */
+			}
+		}
+
+        header {
+            background-color: rgba(247, 245, 244, 0.8);
+            height: 80px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5vw;
+        }
+
+        header ul {
+            position: absolute;
+            right: 5vw;
+            top: 0;
+            line-height: 80px;
+        }
+
+        header li {
+            display: inline;
+            margin-right: 4vw;
+        }
+
+        header a {
+            color: black;
+            text-decoration: none;
+        }
+
+        header a:hover {
+            text-decoration: underline;
+        }
+
+       h1 {
+			color: white;
+			position: absolute;
+			left: 35px;
+			top: 0;
+			line-height: 80px;
+			background-image: url(F.png);
+			background-repeat: no-repeat;
+			background-position: 0 center; 
+			background-size: 5vw;
+			width: 80px;
+			height: 80px;
+			text-indent: -999px;
+		}
+		#title {
+			color: black;
+			font-size: 24px;
+			font-weight: bold;
+			margin: 0;
+		}
+
+		nav ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: flex;
+		}
+
+		nav ul li {
+			position: relative;
+			padding: 10px 20px;
+		}
+		nav {
+			position: fixed;
+			top: 0;
+			width: 100%;
+			background: white;
+			z-index: 1000;
+		}
+		.dropdown-menu {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			background: rgba(255, 255, 255, 0.4);
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+			border-radius: 8px;
+			width: 150px;
+			text-align: left;
+			padding: 5px 0;
+		}
+
+		.dropdown:hover .dropdown-menu {
+			display: block;
+		}
+
+		.dropdown-menu li {
+			padding: 8px 12px;
+			font-size: 14px;
+			transition: background 0.3s;
+			cursor: pointer;
+		}
+
+		.dropdown-menu li:hover {
+			background: #f0f0f0;
+		}
+
+		.language-selector {
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.language-selector label {
+			font-size: 18px;
+			cursor: pointer;
+		}
+
+		.language-selector select {
+			padding: 5px;
+			font-size: 14px;
+		}
+
+		.container {
+			max-width: 400px;
+			margin-bottom: 500px;
+			padding: 20px;
+			background-color: #fff;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			text-align: center;
+		}
+
+        .input-container {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .feedback {
+            color: green;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            text-align: center;
+        }
+		
+		.activity-list-container {
+            max-width: 300px; /* Adjust width as needed */
+            margin: 20px auto;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #activityList {
+            list-style-type: none; /* Remove bullet points */
+            padding: 0;
+        }
+
+        #activityList li {
+            margin: 5px 0; /* Space between items */
+        }
+		
+		#clearAllActivities {
+			background-color: red; /* Change background to red */
+			color: white; /* Ensure text is visible */
+			border: none; /* Remove border */
+			padding: 10px 20px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1 id="title">食咩好</h1>
+        <nav>
+            <ul>
+                <li><a href="home.html" id="home">首頁</a></li>
+                <li><a href="ingredients.html" id="ingredients">食材</a></li>
+                <li><a href="食譜.html" id="recipes">食譜</a></li>
+                <li class="dropdown">
+                    <a href="#" id="tools">工具 ▼</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="bmi.html" id="tool1">BMI</a></li>
+                        <li><a href="tdee.html" id="tool2">TDEE</a></li>
+						<li><a href="Timetable.html" id="tool3">Timetable</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="language-selector">
+                        <label for="language">🌐</label>
+                        <select id="language" onchange="changeLanguage()">
+                            <option value="zh">中文</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <h2 id="timetableHeader">Timetable</h2>
+    <div class="month-selection">
+        <label for="yearSelect" id="yearLabel">Select Year:</label>
+        <select id="yearSelect" onchange="showMonthCalendar()"></select>
+        
+         <label for="monthSelect" id="monthLabel">Select Month:</label>
+        <select id="monthSelect" onchange="showMonthCalendar()">
+            <option value="">請選擇...</option>
+        </select>
+    </div>
+    <div class="calendar" id="calendar"></div>
+	
+	<div style="display: flex;">
+    <div class="activity-list-container" style="margin-right: 20px;">
+        <h3>活動清單</h3>
+        <div id="noActivitiesMessage" style="display: none; color: black; background: white; padding: 10px; text-align: center;">
+            暫無活動
+        </div>
+        <ul id="activityList"></ul>
+		<button id="clearAllActivities">清除所有活動</button>
+    </div>
+
+    <!-- Help Button -->
+    <button class="help-button" id="helpButton" onclick="showHelp()">?</button>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal" role="dialog" aria-labelledby="modalDate" aria-hidden="true">
+        <div class="modal-content">
+            <span id="closeModal" style="float:right;cursor:pointer;">&times;</span>
+            <h2 id="modalDate"></h2>
+            <div id="timeTable"></div>
+            <div class="input-container">
+                <label for="activityInput" id="activityLabel">添加活動:</label>
+                <input id="activityInput" type="text" placeholder="輸入活動" />
+                <button id="addActivityButton">添加活動</button>
+                <div class="feedback" id="feedbackMessage">活動已添加！</div>
+            </div>
+            <button id="deleteSelected">刪除選中活動</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal" role="dialog" aria-labelledby="helpModalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <span id="closeHelpModal" style="float:right;cursor:pointer;">&times;</span>
+            <h2 id="helpModalTitle">使用說明</h2>
+            <p>這是一個年度日曆選擇器，您可以選擇年份和月份來查看特定月份的日曆。</p>
+            <p>您可以點擊任意日期來添加活動，並在彈出窗口中輸入活動名稱。</p>
+            <p>您還可以刪除選中的活動。</p>
+            <p>如需更多幫助，請隨時聯繫我們！</p><br>
+			<p>This is a yearly calendar selector where you can choose the year and month to view the calendar for that specific month.</p>
+            <p>You can click on any date to add activities and enter the activity name in the popup window.</p>
+            <p>You can also delete selected activities.</p>
+			<p>For more help, please feel free to contact us!</p>
+			
+        </div>
+    </div>
+
+    <script>
+        const calendarContainer = document.getElementById('calendar');
+        const monthSelect = document.getElementById('monthSelect');
+        const yearSelect = document.getElementById('yearSelect');
+        const timetableHeader = document.getElementById('timetableHeader');
+        const activityLabel = document.getElementById('activityLabel');
+        const helpButton = document.getElementById('helpButton');
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth();
+        const modal = document.getElementById("myModal");
+        const helpModal = document.getElementById("helpModal");
+        const modalDate = document.getElementById("modalDate");
+        const timeTable = document.getElementById("timeTable");
+        const activityInput = document.getElementById("activityInput");
+        const deleteSelectedButton = document.getElementById("deleteSelected");
+        const addActivityButton = document.getElementById("addActivityButton");
+        const feedbackMessage = document.getElementById("feedbackMessage");
+        const clearAllActivitiesButton = document.getElementById("clearAllActivities");
+		const activityList = document.getElementById("activityList");
+        const noActivitiesMessage = document.getElementById("noActivitiesMessage");
+        let selectedDate = '';
+
+        function populateYearSelect() {
+            for (let i = -5; i <= 5; i++) {
+                const year = currentYear + i;
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+            yearSelect.value = currentYear; // Default to the current year
+        }
+
+        function populateMonthSelect() {
+            for (let i = 0; i < 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${i + 1}月`;
+                monthSelect.appendChild(option);
+            }
+            monthSelect.value = currentMonth; // Default to the current month
+        }
+
+        function showMonthCalendar() {
+            const month = monthSelect.value;
+            const year = yearSelect.value;
+            if (month === "" || year === "") {
+                calendarContainer.innerHTML = ""; // Clear calendar
+                return;
+            }
+
+            calendarContainer.innerHTML = ""; // Clear calendar
+
+            const monthDiv = document.createElement('div');
+            monthDiv.className = 'month';
+            monthDiv.textContent = `${year} - ${parseInt(month) + 1}`;
+
+            const daysHeader = document.createElement('div');
+            daysHeader.className = 'days';
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                const dayNameDiv = document.createElement('div');
+                dayNameDiv.textContent = day;
+                daysHeader.appendChild(dayNameDiv);
+            });
+            monthDiv.appendChild(daysHeader);
+
+            const daysDiv = document.createElement('div');
+            daysDiv.className = 'days';
+
+            const daysInMonth = new Date(year, parseInt(month) + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+
+            // Filling empty spaces
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDiv = document.createElement('div');
+                daysDiv.appendChild(emptyDiv);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day';
+                dayDiv.onclick = function() { showTimeTable(`${year}-${parseInt(month) + 1}-${day}`); };
+
+                const dateHeading = document.createElement('h3');
+                dateHeading.textContent = `${day}`;
+                dayDiv.appendChild(dateHeading);
+
+                const activities = getActivity(`${year}-${parseInt(month) + 1}-${day}`);
+                if (activities && activities.length > 0) {
+                    dayDiv.classList.add('having-activity');
+                    dateHeading.textContent += ` (${activities.length})`;
+                } else {
+                    dayDiv.classList.add('no-activity'); // Add class for no activities
+                }
+
+                daysDiv.appendChild(dayDiv);
+            }
+
+            monthDiv.appendChild(daysDiv);
+            calendarContainer.appendChild(monthDiv);
+        }
+
+        function showTimeTable(date) {
+            selectedDate = date;
+            modalDate.textContent = `${date}的時間表`;
+            timeTable.innerHTML = ""; // Clear time table
+
+            const timeSlots = [
+				{ period: '上午', hours: Array.from({ length: 12 }, (_, i) => i) },
+				{ period: '下午', hours: Array.from({ length: 12 }, (_, i) => i + 12) }
+			];
+
+			timeSlots.forEach(slot => {
+				const periodDiv = document.createElement('div');
+				periodDiv.className = 'time-period';
+				const periodHeader = document.createElement('h3');
+				periodHeader.textContent = slot.period;
+				periodDiv.appendChild(periodHeader);
+
+				slot.hours.forEach(hour => {
+					const timeSlot = document.createElement('div');
+					timeSlot.className = 'time-slot';
+
+					const timeLabel = document.createElement('span');
+					timeLabel.textContent = `${hour}:00`;
+
+				const activityDiv = document.createElement('span');
+				activityDiv.className = 'activity-list';
+				const activities = getActivity(`${selectedDate} ${hour}:00`);
+				activityDiv.innerHTML = activities && activities.length > 0 
+					? activities.map(activity => 
+						`<span class="activity-tag" onclick="toggleActivitySelection(this)">${activity}</span>`
+					).join('') 
+					: '';
+
+				const input = document.createElement('input');
+				input.type = 'text';
+				input.placeholder = '輸入活動/Input Activity';
+				input.style.width = '150px';
+
+				input.onkeypress = function(event) {
+					if (event.key === 'Enter' && input.value) {
+						addActivity(hour, input.value);
+						input.value = ''; // Clear input
+					}
+				};
+
+					timeSlot.appendChild(timeLabel);
+					timeSlot.appendChild(activityDiv);
+					timeSlot.appendChild(input);
+					timeTable.appendChild(timeSlot);
+				});
+			
+				timeTable.appendChild(periodDiv);
+			});
+
+           modal.style.display = "block"; // Show modal
+        }
+
+        function toggleActivitySelection(tag) {
+            tag.classList.toggle('selected');
+        }
+
+        function getActivity(date) {
+            return JSON.parse(localStorage.getItem(date)) || [];
+        }
+
+        function addActivity(hour, activity) {
+            const fullDate = `${selectedDate} ${hour}:00`;
+            const activities = getActivity(fullDate);
+            activities.push(activity); 
+
+            localStorage.setItem(fullDate, JSON.stringify(activities));
+            showMonthCalendar(); // Refresh calendar
+            showTimeTable(selectedDate); // Refresh time table
+
+			updateActivityList(fullDate, activity);
+			
+            // Show feedback message
+            feedbackMessage.style.display = "block";
+            feedbackMessage.textContent = "活動已添加！";
+            setTimeout(() => feedbackMessage.style.display = "none", 2000); // Hide after 2 seconds
+        }
+		
+		function updateActivityList(fullDate, activity) {
+            const listItem = document.createElement("li");
+            listItem.textContent = `${fullDate}: ${activity}`;
+            activityList.appendChild(listItem);
+            toggleNoActivitiesMessage();
+        }
+
+        function clearActivityList() {
+            activityList.innerHTML = ""; // Clear activity list
+            toggleNoActivitiesMessage();
+        }
+
+        function toggleNoActivitiesMessage() {
+            if (activityList.children.length === 0) {
+                noActivitiesMessage.style.display = "block"; // Show message
+            } else {
+                noActivitiesMessage.style.display = "none"; // Hide message
+            }
+        }
+
+        function deleteSelectedActivities() {
+            const selectedTags = timeTable.querySelectorAll('.activity-tag.selected');
+            selectedTags.forEach(tag => {
+                const activity = tag.textContent;
+                const hour = tag.closest('.time-slot').firstChild.textContent.split(':')[0];
+                const date = `${selectedDate} ${hour}:00`;
+                let activities = getActivity(date);
+                activities = activities.filter(act => act !== activity);
+                localStorage.setItem(date, JSON.stringify(activities));
+            });
+
+            showMonthCalendar(); // Refresh calendar
+            showTimeTable(selectedDate); // Refresh time table
+			toggleNoActivitiesMessage(); // Update no activities message
+			location.reload(); // Reload the page
+        }
+
+        clearAllActivitiesButton.onclick = function() {
+            localStorage.clear();
+			alert("All activities have been cleared!");
+			activityList.innerHTML = ""; // Clear activity list
+            showMonthCalendar(); // Refresh calendar after clearing
+        };
+
+        // Close modal functionality
+        document.getElementById("closeModal").onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // Close help modal functionality
+        document.getElementById("closeHelpModal").onclick = function() {
+            helpModal.style.display = "none";
+        };
+
+        // Add activity button event
+        addActivityButton.onclick = function() {
+            const hour = new Date(selectedDate).getHours();
+            const activity = activityInput.value.trim();
+            if (activity) {
+                addActivity(hour, activity);
+                activityInput.value = ''; // Clear input field
+            }
+        };
+
+        // Delete selected activities button event
+        deleteSelectedButton.onclick = deleteSelectedActivities;
+
+        // Show help modal
+        function showHelp() {
+            helpModal.style.display = "block"; // Show help modal
+        }
+
+        // Language change functionality
+        function changeLanguage() {
+            const lang = document.getElementById("language").value;
+            if (lang === "en") {
+                document.getElementById("title").textContent = "What to Eat";
+                document.getElementById("home").textContent = "Home";
+                document.getElementById("ingredients").textContent = "Ingredients";
+                document.getElementById("recipes").textContent = "Recipes";
+                document.getElementById("tools").textContent = "Tools ▼";
+                document.getElementById("tool1").textContent = "BMI";
+                document.getElementById("tool2").textContent = "TDEE";
+                document.getElementById("tool3").textContent = "TIMETABLE";
+                document.getElementById("helpModalTitle").textContent = "Help Instructions";
+                document.getElementById("activityListHeader").textContent = "Activity List";
+                document.getElementById("yearLabel").textContent = "Select Year:";
+                document.getElementById("monthLabel").textContent = "Select Month:";
+                document.getElementById("clearAllActivities").textContent = "Clear All Activities";
+                document.getElementById("addActivityButton").textContent = "Add Activity";
+                document.getElementById("deleteSelected").textContent = "Delete Selected Activities";
+                document.getElementById("feedbackMessage").textContent = "Activity Added!";
+                activityLabel.textContent = "Add Activity:";
+                helpButton.textContent = "?";
+                timetableHeader.textContent = "Timetable";
+            } else {
+                document.getElementById("title").textContent = "食咩好";
+                document.getElementById("home").textContent = "首頁";
+                document.getElementById("ingredients").textContent = "食材";
+                document.getElementById("recipes").textContent = "食譜";
+                document.getElementById("tools").textContent = "工具 ▼";
+                document.getElementById("tool1").textContent = "BMI";
+                document.getElementById("tool2").textContent = "TDEE";
+                document.getElementById("tool3").textContent = "TIMETABLE";
+                document.getElementById("helpModalTitle").textContent = "使用說明";
+                document.getElementById("activityListHeader").textContent = "活動清單";
+                document.getElementById("yearLabel").textContent = "選擇年份:";
+                document.getElementById("monthLabel").textContent = "選擇月份:";
+                document.getElementById("clearAllActivities").textContent = "清除所有活動";
+                document.getElementById("addActivityButton").textContent = "添加活動";
+                document.getElementById("deleteSelected").textContent = "刪除選中活動";
+                document.getElementById("feedbackMessage").textContent = "活動已添加！";
+                activityLabel.textContent = "添加活動:";
+                helpButton.textContent = "?";
+                timetableHeader.textContent = "時間表";
+            }
+        }
+
+        // Initialize
+        populateYearSelect();
+        populateMonthSelect();
+        showMonthCalendar(); // Default to show current month's calendar
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>發佈食譜</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .back-button {
+            background-color: #007bff;
+        }
+        .reset-button {
+            background-color: #ffc107;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>發佈新食譜</h2>
+        <form id="recipeForm">
+            <input type="text" id="username" placeholder="用戶名稱" required>
+            <input type="text" id="title" placeholder="食譜標題" required>
+            <input type="file" id="image" accept="image/*" required>
+            <textarea id="content" rows="10" placeholder="食譜內容" required></textarea>
+            <button type="submit">發佈食譜</button>
+            <button type="button" class="reset-button" onclick="resetForm()">重設輸入</button>
+            <button type="button" class="back-button" onclick="goBack()">返回</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('recipeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const title = document.getElementById('title').value;
+            const imageFile = document.getElementById('image').files[0];
+            const content = document.getElementById('content').value;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const recipeData = {
+                    username: username,
+                    title: title,
+                    image: e.target.result,
+                    content: content
+                };
+
+                const recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+                recipes.push(recipeData);
+                localStorage.setItem('recipes', JSON.stringify(recipes));
+
+                alert('食譜發佈成功！');
+                document.getElementById('recipeForm').reset();
+            };
+            reader.readAsDataURL(imageFile);
+        });
+
+        function resetForm() {
+            document.getElementById('recipeForm').reset();
+        }
+
+        function goBack() {
+            window.location = '食譜.html'; // 返回討論區
+        }
+    </script>
+</body>
+</html>
